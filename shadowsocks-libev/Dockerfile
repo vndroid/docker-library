@@ -10,23 +10,22 @@ ENV DNS_ADDRS   "8.8.8.8,8.8.4.4"
 ENV TZ UTC
 ENV ARGS=
 ENV COMMIT_ID "01dd7df1da98710a619a4a853f6f357dfc46f60f"
-#ENV LD_LIBRARY_PATH "/usr/local/lib/"
 
 WORKDIR /src
 RUN set -x \
     && apk add --no-cache --virtual .build-deps \
-                                    git \
-                                    autoconf \
-                                    automake \
-                                    build-base \
-                                    c-ares-dev \
-                                    libcap \
-                                    libev-dev \
-                                    libtool \
-                                    libsodium-dev \
-                                    linux-headers \
-                                    mbedtls-dev \
-                                    pcre-dev \
+        git \
+        autoconf \
+        automake \
+        build-base \
+        c-ares-dev \
+        libcap \
+        libev-dev \
+        libtool \
+        libsodium-dev \
+        linux-headers \
+        mbedtls-dev \
+        pcre-dev \
     && git clone --recursive https://github.com/shadowsocks/shadowsocks-libev.git \
     && cd shadowsocks-libev \
     && git reset --hard ${COMMIT_ID} \
