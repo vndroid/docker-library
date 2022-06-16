@@ -19,9 +19,6 @@ RUN set -x \
 # Layer 2 (boringssl)
 FROM golang:alpine3.16 AS builder2
 
-#COPY --from=golang:alpine /usr/local/go/ /usr/local/go/
-#ENV PATH /usr/local/go/bin:$PATH
-
 ENV BORINGSSL_COMMIT 9aec15e2aa6feea2113119ba06460af70ab3ea62
 
 WORKDIR /src
@@ -49,7 +46,6 @@ COPY --from=builder2 /src/boringssl /src/boringssl
 ARG NGX_BROTLI_COMMIT 6e975bcb015f62e1f303054897783355e2a877dc
 ARG NGX_DEVEL_COMMIT b4642d6ca01011bd8cd30b253f5c3872b384fd21
 ARG NGX_NAXSI_COMMIT 304e66d86fc4771821585b1bc32169de8afc9cea
-#ARG NGX_NCHAN_COMMIT cd3a3057aa57fc676f65f5b1fc6db6c83de15cee
 
 
 WORKDIR /src
@@ -59,7 +55,6 @@ RUN set -x \
     && apk add --no-cache git mercurial perl-dev pcre-dev pcre2-dev zlib-dev libxslt-dev gd-dev geoip-dev \
     && hg clone https://hg.nginx.org/nginx \
     && hg clone https://hg.nginx.org/njs -r $NJS_VERSION \
-    #&& git clone --recursive https://github.com/slact/nchan.git \
     && git clone --recursive https://github.com/google/ngx_brotli.git \
     && git clone https://github.com/vision5/ngx_devel_kit.git \
     && git clone https://github.com/nbs-system/naxsi.git \
@@ -80,7 +75,6 @@ RUN set -x \
                       --add-dynamic-module=/src/njs/nginx \
                       --add-dynamic-module=/src/ngx_brotli \
                       --add-dynamic-module=/src/headers-more-nginx-module \
-                      #--add-dynamic-module=/src/nchan \
                       --add-dynamic-module=/src/ngx_devel_kit \
                       --add-dynamic-module=/src/traffic-accounting-nginx-module \
                       --add-dynamic-module=/src/set-misc-nginx-module \
@@ -105,7 +99,6 @@ FROM nginx:1.22.0-alpine-perl AS builder4
 COPY --from=builder1 /src/gperftools/.libs/libprofiler.so.0.5.5 /usr/local/lib/
 COPY --from=builder1 /src/gperftools/.libs/libtcmalloc.so.4.5.10 /usr/local/lib/
 COPY --from=builder1 /src/gperftools/.libs/libtcmalloc_minimal.so.4.5.10 /usr/local/lib/
-#COPY --from=builder2 /src/boringssl /src/boringssl
 COPY --from=builder2 /usr/include/openssl/* /usr/include/openssl/
 COPY --from=builder2 /usr/lib/cmake/OpenSSL/* /usr/lib/cmake/OpenSSL/
 COPY --from=builder2 /usr/lib/libcrypto.so /usr/lib/
