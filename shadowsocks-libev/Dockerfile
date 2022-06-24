@@ -1,17 +1,16 @@
 FROM alpine:3.16
 LABEL maintainer="WavE Docker Maintainers <waveworkshop@outlook.com>"
 
-ENV SERVER_ADDR 0.0.0.0
-ENV SERVER_PORT 8388
+ENV SERVER_ADDR=0.0.0.0
+ENV SERVER_PORT=8388
 ENV PASSWORD=
-ENV METHOD      aes-256-gcm
-ENV TIMEOUT     300
-ENV DNS_ADDRS   "8.8.8.8,8.8.4.4"
-ENV TZ UTC
+ENV METHOD=aes-256-gcm
+ENV TIMEOUT=300
+ENV DNS_ADDRS="8.8.8.8,8.8.4.4"
+ENV TZ=UTC
 ENV ARGS=
-ENV COMMIT_ID "d61d09aa0caecf31a39660f3a8f0676e53db129e"
+ENV COMMIT_ID=d61d09aa0caecf31a39660f3a8f0676e53db129e
 
-WORKDIR /src
 RUN set -x \
     && apk add --no-cache --virtual .build-deps \
         git \
@@ -26,6 +25,8 @@ RUN set -x \
         linux-headers \
         mbedtls-dev \
         pcre-dev \
+    && mkdir /src \
+    && cd /src \
     && git clone --recursive https://github.com/shadowsocks/shadowsocks-libev.git \
     && cd shadowsocks-libev \
     && git reset --hard ${COMMIT_ID} \
@@ -40,6 +41,7 @@ RUN set -x \
     && apk add --no-cache \
         ca-certificates \
         rng-tools \
+        iproute2-ss \
         tzdata \
         $(scanelf --needed --nobanner /usr/local/bin/ss-* \
         | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
@@ -47,11 +49,10 @@ RUN set -x \
     && rm -rf /src
 
 COPY docker-entrypoint.sh /usr/local/bin/
-USER nobody
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 8388
 
 STOPSIGNAL SIGQUIT
 
-CMD ["entrypoint.sh"]
+CMD ["ss-server"]
