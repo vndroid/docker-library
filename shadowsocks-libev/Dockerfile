@@ -9,7 +9,7 @@ ENV TIMEOUT=300
 ENV DNS_ADDRS="8.8.8.8,8.8.4.4"
 ENV TZ=UTC
 ENV ARGS=
-ENV COMMIT_ID=d61d09aa0caecf31a39660f3a8f0676e53db129e
+ENV COMMIT_ID="05e70d43176ae239ba54ffb1a0f80df5b8f3d4f1"
 
 RUN set -x \
     && apk add --no-cache --virtual .build-deps \
