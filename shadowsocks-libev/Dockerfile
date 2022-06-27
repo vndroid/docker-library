@@ -53,6 +53,6 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 8388
 
-STOPSIGNAL SIGQUIT
+STOPSIGNAL SIGINT
 
 CMD ["ss-server"]
