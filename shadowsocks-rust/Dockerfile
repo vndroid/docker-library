@@ -41,6 +41,8 @@ COPY --from=build /root/shadowsocks-rust/target/release/sslocal /usr/bin
 COPY --from=build /root/shadowsocks-rust/target/release/ssserver /usr/bin
 COPY --from=build /root/shadowsocks-rust/examples/config.json /etc/shadowsocks-rust/
 
-USER nobody
+COPY docker-entrypoint.sh /usr/local/bin/
 
-ENTRYPOINT [ "ssserver", "--log-without-time", "-c", "/etc/shadowsocks-rust/config.json" ]
+ENTRYPOINT ["docker-entrypoint.sh"]
+
+CMD ["ssserver"]
