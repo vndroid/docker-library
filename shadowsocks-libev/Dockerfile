@@ -37,7 +37,7 @@ RUN set -x \
     && cd /usr/local/bin \
     && ls /usr/local/bin/ss-* | xargs -n1 setcap cap_net_bind_service+ep \
     && strip $(ls /usr/local/bin | grep -Ev 'ss-nat') \
-    && apk del .build-deps \
+    && apk del --no-cache .build-deps \
     && apk add --no-cache \
         ca-certificates \
         rng-tools \
