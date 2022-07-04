@@ -5,9 +5,8 @@ LABEL maintainer="WavE Docker Maintainers <waveworkshop@outlook.com>"
 ENV COMMIT_ID="5916909ebd44d449d46165dcb95f4259c8c73084"
 
 RUN set -x \
-    && apk add --no-cache build-base git 
-
-RUN mkdir /src \
+    && apk add --no-cache build-base git \
+    && mkdir /src \
     && cd /src \
     && git clone https://github.com/shadowsocks/shadowsocks-rust.git \
     && apkArch="$(apk --print-arch)" \
