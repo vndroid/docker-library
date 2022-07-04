@@ -42,10 +42,18 @@ FROM alpine:3.16 AS ssserver
 
 COPY --from=builder /src/shadowsocks-rust/target/release/sslocal /usr/local/bin/
 COPY --from=builder /src/shadowsocks-rust/target/release/ssserver /usr/local/bin/
+COPY --from=builder /src/shadowsocks-rust/target/release/ssmanager /usr/local/bin/
+COPY --from=builder /src/shadowsocks-rust/target/release/ssservice /usr/local/bin/
 COPY --from=builder /src/shadowsocks-rust/examples/config.json /etc/shadowsocks-rust/
-
 COPY docker-entrypoint.sh /usr/local/bin/
 
+RUN set -x \
+    && apk add --no-cache iproute2-ss
+
 ENTRYPOINT ["docker-entrypoint.sh"]
+
+EXPOSE 8388
+
+STOPSIGNAL SIGINT
 
 CMD ["ssserver", "--log-without-time", "-a", "nobody", "-c", "/etc/shadowsocks-rust/config.json"]
