@@ -40,15 +40,14 @@ RUN set -x \
     && apk del --no-cache .build-deps \
     && apk add --no-cache \
         ca-certificates \
-        rng-tools \
         iproute2-ss \
-        tzdata \
         $(scanelf --needed --nobanner /usr/local/bin/ss-* \
         | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
         | sort -u) \
     && rm -rf /src
 
 COPY docker-entrypoint.sh /usr/local/bin/
+
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 8388
