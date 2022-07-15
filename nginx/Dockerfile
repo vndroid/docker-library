@@ -1,14 +1,17 @@
 # Layer 1 (tcmalloc)
 FROM alpine:3.16 AS builder1
 
+ARG TCMALLOC_COMMIT bf8b714bf5075d0a6f2f28504b43095e2b1e11c5
+
 WORKDIR /src
 
 RUN set -x \
     && apk add --no-cache build-base git \
     && apk add --no-cache libunwind-dev \
     && apk add --no-cache autoconf automake libtool linux-headers \
-    && git clone https://github.com/gperftools/gperftools.git \
+    && git clone --depth 1 https://github.com/gperftools/gperftools.git \
     && cd gperftools \
+    && git fetch --depth 1 origin $TCMALLOC_COMMIT \
     && ./autogen.sh \
     && ./configure \
     && make -j$(getconf _NPROCESSORS_ONLN) \
@@ -19,7 +22,7 @@ RUN set -x \
 # Layer 2 (boringssl)
 FROM golang:alpine3.16 AS builder2
 
-ENV BORINGSSL_COMMIT 9aec15e2aa6feea2113119ba06460af70ab3ea62
+ARG BORINGSSL_COMMIT 0bfc9b32c4ec860dc46338d15320532c5e4496c8
 
 WORKDIR /src
 
@@ -27,9 +30,11 @@ RUN set -x \
     && apk add --no-cache libunwind-dev \
     && apk add --no-cache build-base cmake perl git linux-headers pkgconfig \
     && apk add --no-cache ninja \
-    && git clone --depth=1 https://boringssl.googlesource.com/boringssl \
-    && mkdir boringssl/build \
-    && cd boringssl/build \
+    && git clone --depth 1 https://boringssl.googlesource.com/boringssl \
+    && cd boringssl \
+    && git fetch --depth 1 origin $BORINGSSL_COMMIT \
+    && mkdir build \
+    && cd build \
     && cmake -GNinja -DBUILD_SHARED_LIBS=1 -DCMAKE_INSTALL_PREFIX=/usr .. \
     && ninja \
     && ninja install \
@@ -44,42 +49,53 @@ COPY --from=builder2 /src/boringssl /src/boringssl
 
 # https://www.nginx.com/nginx-wiki/build/dirhtml/modules/
 ARG NGX_BROTLI_COMMIT 6e975bcb015f62e1f303054897783355e2a877dc
-ARG NGX_DEVEL_COMMIT b4642d6ca01011bd8cd30b253f5c3872b384fd21
-ARG NGX_NAXSI_COMMIT 304e66d86fc4771821585b1bc32169de8afc9cea
+ARG NGX_NDK_COMMIT b4642d6ca01011bd8cd30b253f5c3872b384fd21
+ARG NGX_NAXSI_COMMIT 29793dcb2d9bdfa02c9b8d6968063ce3daa0a77b
+ARG NGX_SMNM_COMMIT 3ea21393340a22a6a4dc3f9c1e07b3aac26a5c56
+ARG NGX_HMNM_COMMIT d502e41996d24a382bd9c632e3ae3efa0a5fca66
+ARG NGX_ESNM_COMMIT 8250e6a1d03b0d82358ac9dd478d93038da3ae24
+ARG NGX_TANM_COMMIT d53a4a6e05d2571b9c7a090a8127e51597cbe9eb
 
 
 WORKDIR /src
 
 RUN set -x \
-    && apk add --no-cache build-base cmake perl git linux-headers pkgconfig libunwind-static \
+    && apk add --no-cache build-base cmake linux-headers pkgconfig libunwind-static \
     && apk add --no-cache git mercurial perl-dev pcre-dev pcre2-dev zlib-dev libxslt-dev gd-dev geoip-dev \
     && hg clone https://hg.nginx.org/nginx \
     && hg clone https://hg.nginx.org/njs -r $NJS_VERSION \
     && git clone --recursive https://github.com/google/ngx_brotli.git \
-    && git clone https://github.com/vision5/ngx_devel_kit.git \
-    && git clone https://github.com/nbs-system/naxsi.git \
-    && git clone --depth=1 https://github.com/openresty/set-misc-nginx-module \
-    && git clone --depth=1 https://github.com/openresty/headers-more-nginx-module.git \
-    && git clone --depth=1 https://github.com/openresty/encrypted-session-nginx-module.git \
-    && git clone --depth=1 https://github.com/Lax/traffic-accounting-nginx-module.git \
+    && git clone --recursive https://github.com/vision5/ngx_devel_kit.git \
+    && git clone --recursive https://github.com/nbs-system/naxsi.git \
+    && git clone --recursive https://github.com/openresty/set-misc-nginx-module.git \
+    && git clone --recursive https://github.com/openresty/headers-more-nginx-module.git \
+    && git clone --recursive https://github.com/openresty/encrypted-session-nginx-module.git \
+    && git clone --recursive https://github.com/Lax/traffic-accounting-nginx-module.git \
     && cd /src/ngx_brotli \
     && git fetch --depth 1 origin $NGX_BROTLI_COMMIT \
     && cd /src/ngx_devel_kit \
-    && git fetch --depth 1 origin $NGX_DEVEL_COMMIT \
+    && git fetch --depth 1 origin $NGX_NDK_COMMIT \
     && cd /src/naxsi \
     && git fetch --depth 1 origin $NGX_NAXSI_COMMIT \
-    && curl -s https://raw.githubusercontent.com/archlinux/svntogit-community/packages/nginx-mod-naxsi/trunk/587-pcre2.patch | patch -p1 \
+    && cd /src/set-misc-nginx-module \
+    && git fetch --depth 1 origin $NGX_SMNM_COMMIT \
+    && cd /src/headers-more-nginx-module \
+    && git fetch --depth 1 origin $NGX_HMNM_COMMIT \
+    && cd /src/encrypted-session-nginx-module \
+    && git fetch --depth 1 origin $NGX_ESNM_COMMIT \
+    && cd /src/traffic-accounting-nginx-module \
+    && git fetch --depth 1 origin $NGX_TANM_COMMIT \
     && cd /src/nginx \
     && hg up release-$NGINX_VERSION \
     && auto/configure `nginx -V 2>&1 | sed "s/ \-\-/ \\\ \n\t--/g" | grep "\-\-" | grep -ve opt= -e param= -e build=` \
                       --add-dynamic-module=/src/njs/nginx \
                       --add-dynamic-module=/src/ngx_brotli \
-                      --add-dynamic-module=/src/headers-more-nginx-module \
                       --add-dynamic-module=/src/ngx_devel_kit \
-                      --add-dynamic-module=/src/traffic-accounting-nginx-module \
-                      --add-dynamic-module=/src/set-misc-nginx-module \
-                      --add-dynamic-module=/src/encrypted-session-nginx-module \
                       --add-dynamic-module=/src/naxsi/naxsi_src \
+                      --add-dynamic-module=/src/set-misc-nginx-module \
+                      --add-dynamic-module=/src/headers-more-nginx-module \
+                      --add-dynamic-module=/src/encrypted-session-nginx-module \
+                      --add-dynamic-module=/src/traffic-accounting-nginx-module \
                       --with-cc-opt="-I/src/boringssl/include" \
                       --with-ld-opt="-L/src/boringssl/build/ssl -L/src/boringssl/build/crypto" \
     && make modules -j$(getconf _NPROCESSORS_ONLN) \
@@ -154,7 +170,7 @@ RUN apk add --no-cache libstdc++ libunwind \
 # Origin Source
 
 ENV NGINX_VERSION 1.22.0
-ENV NJS_VERSION   0.7.4
+ENV NJS_VERSION   0.7.5
 ENV PKG_RELEASE   1
 
 RUN set -x \
