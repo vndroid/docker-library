@@ -283,6 +283,7 @@ RUN set -eux; \
     && apk add --no-cache yaml yaml-dev \
     && pecl install yaml \
     && docker-php-ext-enable yaml \
+	&& apk add --update linux-headers \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug \
     # Fix load bug
@@ -303,6 +304,7 @@ RUN set -eux; \
         zlib-dev \
         zstd-dev \
         gmp-dev \
+        linux-headers \
     && rm -rf /tmp/pear/
 
 # Override stop signal to stop process gracefully
