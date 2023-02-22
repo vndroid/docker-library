@@ -1,4 +1,4 @@
-FROM alpine:3.16
+FROM alpine:3.17
 
 LABEL maintainer="WavE Docker Maintainers <waveworkshop@outlook.com>"
 # dependencies required for running "phpize"
@@ -52,9 +52,9 @@ ENV PHP_LDFLAGS="-Wl,-O1 -pie"
 
 ENV GPG_KEYS 528995BFEDFBA7191D46839EF9BA0ADA31CBD89E 39B641343D8C104B2B146DC3F9C39DC0B9698544 F1F692238FBC1666E5A5CCD4199F9DFEF6FFBAFD
 
-ENV PHP_VERSION 8.1.7
-ENV PHP_URL="https://www.php.net/distributions/php-8.1.7.tar.xz" PHP_ASC_URL="https://www.php.net/distributions/php-8.1.7.tar.xz.asc"
-ENV PHP_SHA256="f042322f1b5a9f7c2decb84b7086ef676896c2f7178739b9672afafa964ed0e5"
+ENV PHP_VERSION 8.1.16
+ENV PHP_URL="https://www.php.net/distributions/php-8.1.16.tar.xz" PHP_ASC_URL="https://www.php.net/distributions/php-8.1.16.tar.xz.asc"
+ENV PHP_SHA256="d61f13d96a58b93c39672b58f25e1ee4ce88500f4acb1430cb01a514875c1258"
 
 RUN set -eux; \
 	\
@@ -254,7 +254,7 @@ RUN set -eux; \
     && docker-php-ext-install gmp \
     && apk add --no-cache libpq libpq-dev \
     && docker-php-ext-install pgsql pdo_pgsql \
-    # PECL Ext 
+    # PECL Ext
     && apk add --no-cache autoconf build-base \
     && pecl install igbinary \
     && docker-php-ext-enable igbinary \
