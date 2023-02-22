@@ -263,9 +263,6 @@ RUN set -eux; \
     && apk add --no-cache zstd-libs zstd-dev \
     && pecl install -D 'enable-redis-igbinary="yes" enable-redis-lzf="yes" enable-redis-zstd="yes"' redis \
     && docker-php-ext-enable redis \
-    # xmlrpc on PHP 8 still in beta chanel
-    && pecl install xmlrpc channel://pecl.php.net/xmlrpc-1.0.0RC3 \
-    && docker-php-ext-enable xmlrpc \
     && apk add --no-cache libmemcached-libs \
         libmemcached-dev \
         libevent-dev \
