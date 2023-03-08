@@ -1,4 +1,4 @@
-FROM alpine:3.16
+FROM alpine:3.17
 LABEL maintainer="WavE Docker Maintainers <waveworkshop@outlook.com>"
 
 ENV SERVER_ADDR=0.0.0.0
@@ -9,7 +9,7 @@ ENV TIMEOUT=300
 ENV DNS_ADDRS="8.8.8.8,8.8.4.4"
 ENV TZ=UTC
 ENV ARGS=
-ENV COMMIT_ID="05e70d43176ae239ba54ffb1a0f80df5b8f3d4f1"
+ENV COMMIT_ID="d83ace0f0d9c05656c13d66aa4a449bf70143254"
 
 RUN set -x \
     && apk add --no-cache --virtual .build-deps \
