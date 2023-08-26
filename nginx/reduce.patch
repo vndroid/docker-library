@@ -166,16 +166,18 @@
 +if ! getent passwd wavex >/dev/null; then
      adduser -SDH \
 -	-h /var/cache/nginx \
-+	-h /var/cache/wavex \
- 	-s /sbin/nologin \
+-	-s /sbin/nologin \
 -	-G nginx \
 -	-g nginx \
 -	nginx 2>/dev/null
-+	-G wavex \
-+	-g wavex \
-+	wavex 2>/dev/null
- 
+-
 -    addgroup nginx www-data 2>/dev/null
++        -u 101 \
++        -h /var/cache/wavex \
++        -s /sbin/nologin \
++        -G wavex \
++        -g wavex \
++        wavex 2>/dev/null
 +    addgroup wavex www-data 2>/dev/null
  fi
  
