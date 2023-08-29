@@ -1,0 +1,104 @@
+--- nginx/src/core/nginx.c
++++ wavex/src/core/nginx.c
+@@ -390,11 +390,11 @@
+ static void
+ ngx_show_version_info(void)
+ {
+-    ngx_write_stderr("nginx version: " NGINX_VER_BUILD NGX_LINEFEED);
++    ngx_write_stderr("wavex version: " NGINX_VER_BUILD NGX_LINEFEED);
+ 
+     if (ngx_show_help) {
+         ngx_write_stderr(
+-            "Usage: nginx [-?hvVtTq] [-s signal] [-p prefix]" NGX_LINEFEED
++            "Usage: wavex [-?hvVtTq] [-s signal] [-p prefix]" NGX_LINEFEED
+             "             [-e filename] [-c filename] [-g directives]"
+                           NGX_LINEFEED NGX_LINEFEED
+             "Options:" NGX_LINEFEED
+--- nginx/src/core/nginx.h
++++ wavex/src/core/nginx.h
+@@ -11,7 +11,11 @@
+ 
+ #define nginx_version      1024000
+ #define NGINX_VERSION      "1.24.0"
+-#define NGINX_VER          "nginx/" NGINX_VERSION
++#define NGINX_VER          "wavex/" NGINX_VERSION
++
++#define wavex_version      1010178
++#define WAVEX_VERSION      "1.1.1m"
++#define WAVEX_VER          "wavex/" WAVEX_VERSION
+ 
+ #ifdef NGX_BUILD
+ #define NGINX_VER_BUILD    NGINX_VER " (" NGX_BUILD ")"
+--- nginx/src/core/ngx_log.c
++++ wavex/src/core/ngx_log.c
+@@ -204,7 +204,7 @@
+ 
+     msg -= (7 + err_levels[level].len + 3);
+ 
+-    (void) ngx_sprintf(msg, "nginx: [%V] ", &err_levels[level]);
++    (void) ngx_sprintf(msg, "wavex: [%V] ", &err_levels[level]);
+ 
+     (void) ngx_write_console(ngx_stderr, msg, p - msg);
+ }
+@@ -264,7 +264,7 @@
+ 
+     last = errstr + NGX_MAX_ERROR_STR;
+ 
+-    p = ngx_cpymem(errstr, "nginx: ", 7);
++    p = ngx_cpymem(errstr, "wavex: ", 7);
+ 
+     va_start(args, fmt);
+     p = ngx_vslprintf(p, last, fmt, args);
+@@ -637,7 +637,7 @@
+ 
+ #else
+         ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
+-                           "nginx was built without debug support");
++                           "wavex was built without debug support");
+         return NGX_CONF_ERROR;
+ #endif
+ 
+--- nginx/src/http/ngx_http_header_filter_module.c
++++ wavex/src/http/ngx_http_header_filter_module.c
+@@ -46,7 +46,7 @@
+ };
+ 
+ 
+-static u_char ngx_http_server_string[] = "Server: nginx" CRLF;
++static u_char ngx_http_server_string[] = "Server: wavex" CRLF;
+ static u_char ngx_http_server_full_string[] = "Server: " NGINX_VER CRLF;
+ static u_char ngx_http_server_build_string[] = "Server: " NGINX_VER_BUILD CRLF;
+ 
+--- nginx/src/os/unix/ngx_setproctitle.c
++++ wavex/src/os/unix/ngx_setproctitle.c
+@@ -89,7 +89,7 @@
+ 
+     ngx_os_argv[1] = NULL;
+ 
+-    p = ngx_cpystrn((u_char *) ngx_os_argv[0], (u_char *) "nginx: ",
++    p = ngx_cpystrn((u_char *) ngx_os_argv[0], (u_char *) "wavex: ",
+                     ngx_os_argv_last - ngx_os_argv[0]);
+ 
+     p = ngx_cpystrn(p, (u_char *) title, ngx_os_argv_last - (char *) p);
+--- nginx/src/os/unix/ngx_sunpro_amd64.il
++++ wavex/src/os/unix/ngx_sunpro_amd64.il
+@@ -36,7 +36,7 @@
+ / the "rep; nop" is used instead of "pause" to avoid the "[ PAUSE ]" hardware
+ / capability added by linker because Solaris/amd64 does not know about it:
+ /
+-/ ld.so.1: nginx: fatal: hardware capability unsupported: 0x2000 [ PAUSE ]
++/ ld.so.1: wavex: fatal: hardware capability unsupported: 0x2000 [ PAUSE ]
+ 
+         .inline ngx_cpu_pause,0
+         rep; nop
+--- nginx/src/os/unix/ngx_sunpro_x86.il
++++ wavex/src/os/unix/ngx_sunpro_x86.il
+@@ -37,7 +37,7 @@
+ / the "rep; nop" is used instead of "pause" to avoid the "[ PAUSE ]" hardware
+ / capability added by linker because Solaris/i386 does not know about it:
+ /
+-/ ld.so.1: nginx: fatal: hardware capability unsupported: 0x2000  [ PAUSE ]
++/ ld.so.1: wavex: fatal: hardware capability unsupported: 0x2000  [ PAUSE ]
+ 
+         .inline ngx_cpu_pause,0
+         rep; nop
