@@ -27,7 +27,7 @@
  
  prepare() {
  	local file; for file in $source; do
-@@ -76,21 +72,11 @@
+@@ -76,29 +72,19 @@
  	make DESTDIR="$pkgdir" install
  	install -m755 objs/nginx-debug "$pkgdir"/usr/sbin/nginx-debug
  
@@ -49,8 +49,9 @@
  	mkdir -p ./usr/share/nginx
  	mv ./etc/nginx/html ./usr/share/nginx/
  
-@@ -98,7 +84,7 @@
- 	ln -sf /$_modules_dir ./etc/nginx/modules
+ 	mkdir -p ./$_modules_dir
+-	ln -sf /$_modules_dir ./etc/nginx/modules
++	ln -sf /usr/lib/nginx/modules ./etc/nginx/modules
  
  	rm -rf ./etc/nginx/*.default
 -	rm -f ./etc/nginx/koi-utf
@@ -106,7 +107,7 @@
  }
 --- alpine/nginx.post-install
 +++ deluxe/nginx.post-install
-@@ -18,8 +18,37 @@
+@@ -18,8 +18,43 @@
  ----------------------------------------------------------------------
  BANNER
  
@@ -136,8 +137,14 @@
 +    ln -sf /usr/lib/wavex/modules/ /usr/lib/nginx/modules
 +fi
 +
++if [ ! -d /etc/wavex/modules ]; then
++    ln -sf /usr/lib/wavex/modules/ /etc/wavex/modules
++fi
++
 +if [ ! -d /etc/nginx/conf.d ]; then
 +    ln -sf /etc/wavex/conf.d/ /etc/nginx/conf.d
++else
++    mkdir /etc/wavex/conf.d/
 +fi
 +
 +if [ ! -d /etc/nginx/modules ]; then
