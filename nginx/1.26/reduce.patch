@@ -90,14 +90,14 @@
  		CFLAGS= %%MODULE_ENV%% ./configure %%BASE_CONFIGURE_ARGS%% %%MODULE_CONFIGURE_ARGS%% --with-cc-opt="$CFLAGS %%MODULE_CC_OPT%%" --with-ld-opt="$LDFLAGS %%MODULE_LD_OPT%%"
  		make $_make_opts modules
  	fi
-@@ -153,12 +146,9 @@
+@@ -153,12 +146,8 @@
  
  	%%MODULE_PREINSTALL%%
  
 -	mkdir -p "$pkgdir"/usr/lib/nginx/modules
 +	mkdir -p "$pkgdir"/usr/lib/wavex/modules
  	for so in `find objs/ -maxdepth 1 -type f -name "*.so"`; do \
- 		install -m755 ${so} "$pkgdir"/usr/lib/nginx/modules/ ; \
+-		install -m755 ${so} "$pkgdir"/usr/lib/nginx/modules/ ; \
 +		install -m755 ${so} "$pkgdir"/usr/lib/wavex/modules/ ; \
  	done
 -
