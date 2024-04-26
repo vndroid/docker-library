@@ -1,0 +1,190 @@
+--- alpine/APKBUILD-base.in
++++ deluxe/APKBUILD-base.in
+@@ -20,23 +20,19 @@
+ 
+ pkgusers=""
+ pkggroups=""
+-install="$pkgname.pre-install $pkgname.post-install $pkgname.pre-deinstall $pkgname.post-upgrade"
++install="$pkgname.pre-install $pkgname.post-install"
+ 
+-subpackages="$pkgname-dbg"
++subpackages=""
+ 
+ replaces="nginx-common nginx-initscripts nginx-lua nginx-rtmp"
+ source="$pkgname-$_base_version.tar.gz
+ 	$pkgname.conf
+ 	$pkgname.default.conf
+-	$pkgname.logrotate
+-	$pkgname.initd
+-	$pkgname-debug.initd
+-	COPYRIGHT
+ 	%%BASE_PATCHES%%
+ 	"
+ builddir="$srcdir/$pkgname-$_base_version"
+ 
+-_modules_dir="usr/lib/nginx/modules"
++_modules_dir="usr/lib/wavex/modules"
+ 
+ prepare() {
+ 	local file; for file in $source; do
+@@ -76,29 +72,19 @@
+ 	make DESTDIR="$pkgdir" install
+ 	install -m755 objs/nginx-debug "$pkgdir"/usr/sbin/nginx-debug
+ 
+-	install -Dm644 objs/nginx.8 "$pkgdir"/usr/share/man/man8/nginx.8
+-	if [ -z "`echo $subpackages | grep -- -doc`" ]; then
+-		gzip "$pkgdir"/usr/share/man/man8/nginx.8
+-	fi
+-
+ 	cd "$pkgdir"
+ 
+ 	install -Dm644 "$srcdir"/$pkgname.conf ./etc/nginx/nginx.conf
+ 	install -Dm644 "$srcdir"/$pkgname.default.conf ./etc/nginx/conf.d/default.conf
+-	install -Dm755 "$srcdir"/$pkgname.initd ./etc/init.d/nginx
+-	install -Dm755 "$srcdir"/$pkgname-debug.initd ./etc/init.d/nginx-debug
+-	install -Dm644 "$srcdir"/$pkgname.logrotate ./etc/logrotate.d/nginx
+ 
+-	install -Dm644 "$srcdir"/COPYRIGHT ./usr/share/licenses/$pkgname/COPYRIGHT
+-
+ 	mkdir -p ./usr/share/nginx
+ 	mv ./etc/nginx/html ./usr/share/nginx/
+ 
+ 	mkdir -p ./$_modules_dir
+-	ln -sf /$_modules_dir ./etc/nginx/modules
++	ln -sf /usr/lib/nginx/modules ./etc/nginx/modules
+ 
+ 	rm -rf ./etc/nginx/*.default
+-	rm -f ./etc/nginx/koi-utf
+-	rm -f ./etc/nginx/koi-win
+-	rm -f ./etc/nginx/win-utf
++	rm -rf ./etc/nginx/koi-utf
++	rm -rf ./etc/nginx/koi-win
++	rm -rf ./etc/nginx/win-utf
+ }
+--- alpine/APKBUILD-module.in
++++ deluxe/APKBUILD-module.in
+@@ -23,12 +23,11 @@
+ install="$pkgname.post-install"
+ 
+ if ! [ "x%%MODULE_CONFIGURE_ARGS%%" = "x" ]; then
+-subpackages="$pkgname-dbg"
++subpackages=""
+ fi;
+ 
+ source="nginx-module-%%MODULE%%-$_base_version.tar.gz
+ 	%%MODULE_SOURCES%%
+-	COPYRIGHT
+ 	"
+ builddir="$srcdir/%%MODULE_SRCDIR%%"
+ 
+@@ -135,12 +134,6 @@
+ 			ln -s auto/configure configure
+ 		fi
+ 
+-		CFLAGS= %%MODULE_ENV%% ./configure %%BASE_CONFIGURE_ARGS%% %%MODULE_CONFIGURE_ARGS%% --with-cc-opt="$CFLAGS %%MODULE_CC_OPT_DEBUG%%" --with-ld-opt="$LDFLAGS %%MODULE_LD_OPT_DEBUG%%" --with-debug
+-		make $_make_opts modules
+-		for so in `find objs/ -maxdepth 1 -type f -name "*.so"`; do \
+-			debugso=`echo ${so} | sed -e 's|\.so$|-debug.so|'` ; \
+-			mv ${so} ${debugso} ; \
+-		done
+ 		CFLAGS= %%MODULE_ENV%% ./configure %%BASE_CONFIGURE_ARGS%% %%MODULE_CONFIGURE_ARGS%% --with-cc-opt="$CFLAGS %%MODULE_CC_OPT%%" --with-ld-opt="$LDFLAGS %%MODULE_LD_OPT%%"
+ 		make $_make_opts modules
+ 	fi
+@@ -151,12 +144,9 @@
+ 
+ 	%%MODULE_PREINSTALL%%
+ 
+-	mkdir -p "$pkgdir"/usr/lib/nginx/modules
++	mkdir -p "$pkgdir"/usr/lib/wavex/modules
+ 	for so in `find objs/ -maxdepth 1 -type f -name "*.so"`; do \
+-		install -m755 ${so} "$pkgdir"/usr/lib/nginx/modules/ ; \
++		install -m755 ${so} "$pkgdir"/usr/lib/wavex/modules/ ; \
+ 	done
+ 
+-	cd "$pkgdir"
+-
+-	install -Dm644 "$srcdir"/COPYRIGHT ./usr/share/licenses/$pkgname/COPYRIGHT
+ }
+--- alpine/nginx.post-install
++++ deluxe/nginx.post-install
+@@ -18,8 +18,43 @@
+ ----------------------------------------------------------------------
+ BANNER
+ 
++if [ ! -d /var/cache/wavex ]; then
++    mkdir -p /var/cache/wavex
++fi
++
+ if [ ! -d /var/cache/nginx ]; then
+-	mkdir -p /var/cache/nginx
++    ln -s /var/cache/wavex/ /var/cache/nginx
++fi
++
++if [ -d /etc/nginx ]; then
++    if [ ! -d /etc/wavex ]; then
++        mkdir -p /etc/wavex
++    fi
++    find /etc/nginx/ -type f -name "*_params" -maxdepth 1 | xargs cp -t /etc/wavex/
++    cp /etc/nginx/fastcgi.conf /etc/wavex/
++    cp /etc/nginx/nginx.conf /etc/wavex/wavex.conf
++    if [ -f /etc/nginx/nginx.conf ]; then
++        sed -i '2s/#user/user/' /etc/nginx/nginx.conf
++    fi
++fi
++
++if [ -d /usr/lib/wavex/modules ]; then
++    mkdir -p /usr/lib/nginx/
++    ln -sf /usr/lib/wavex/modules/ /usr/lib/nginx/modules
++fi
++
++if [ ! -d /etc/wavex/modules ]; then
++    ln -sf /usr/lib/wavex/modules/ /etc/wavex/modules
++fi
++
++if [ ! -d /etc/nginx/conf.d ]; then
++    ln -sf /etc/wavex/conf.d/ /etc/nginx/conf.d
++else
++    mkdir /etc/wavex/conf.d/
++fi
++
++if [ ! -d /etc/nginx/modules ]; then
++    ln -sf /etc/wavex/modules/ /etc/nginx/modules
+ fi
+ 
+ exit 0
+--- alpine/nginx.pre-install
++++ deluxe/nginx.pre-install
+@@ -2,23 +2,23 @@
+ 
+ set -e
+ 
+-if ! getent group nginx >/dev/null; then
+-    addgroup -S nginx 2>/dev/null
++if ! getent group wavex >/dev/null; then
++    addgroup -g 101 -S wavex 2>/dev/null
+ fi
+ 
+ if ! getent group www-data >/dev/null; then
+     addgroup -Sg 82 www-data 2>/dev/null
+ fi
+ 
+-if ! getent passwd nginx >/dev/null; then
++if ! getent passwd wavex >/dev/null; then
+     adduser -SDH \
+-	-h /var/cache/nginx \
+-	-s /sbin/nologin \
+-	-G nginx \
+-	-g nginx \
+-	nginx 2>/dev/null
+-
+-    addgroup nginx www-data 2>/dev/null
++        -u 101 \
++        -h /var/cache/wavex \
++        -s /sbin/nologin \
++        -G wavex \
++        -g wavex \
++        wavex 2>/dev/null
++    addgroup wavex www-data 2>/dev/null
+ fi
+ 
+ exit 0
