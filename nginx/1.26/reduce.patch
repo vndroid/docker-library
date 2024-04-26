@@ -1,5 +1,5 @@
---- alpine/APKBUILD-base.in
-+++ deluxe/APKBUILD-base.in
+--- alpine/alpine/APKBUILD-base.in
++++ deluxe/alpine/APKBUILD-base.in
 @@ -20,23 +20,19 @@
  
  pkgusers=""
@@ -61,8 +61,8 @@
 +	rm -rf ./etc/nginx/koi-win
 +	rm -rf ./etc/nginx/win-utf
  }
---- alpine/APKBUILD-module.in
-+++ deluxe/APKBUILD-module.in
+--- alpine/alpine/APKBUILD-module.in
++++ deluxe/alpine/APKBUILD-module.in
 @@ -23,12 +23,11 @@
  install="$pkgname.post-install"
  
@@ -77,7 +77,7 @@
  	"
  builddir="$srcdir/%%MODULE_SRCDIR%%"
  
-@@ -135,12 +134,6 @@
+@@ -137,12 +136,6 @@
  			ln -s auto/configure configure
  		fi
  
@@ -90,23 +90,23 @@
  		CFLAGS= %%MODULE_ENV%% ./configure %%BASE_CONFIGURE_ARGS%% %%MODULE_CONFIGURE_ARGS%% --with-cc-opt="$CFLAGS %%MODULE_CC_OPT%%" --with-ld-opt="$LDFLAGS %%MODULE_LD_OPT%%"
  		make $_make_opts modules
  	fi
-@@ -151,12 +144,9 @@
+@@ -153,12 +146,9 @@
  
  	%%MODULE_PREINSTALL%%
  
 -	mkdir -p "$pkgdir"/usr/lib/nginx/modules
 +	mkdir -p "$pkgdir"/usr/lib/wavex/modules
  	for so in `find objs/ -maxdepth 1 -type f -name "*.so"`; do \
--		install -m755 ${so} "$pkgdir"/usr/lib/nginx/modules/ ; \
+ 		install -m755 ${so} "$pkgdir"/usr/lib/nginx/modules/ ; \
 +		install -m755 ${so} "$pkgdir"/usr/lib/wavex/modules/ ; \
  	done
- 
+-
 -	cd "$pkgdir"
 -
 -	install -Dm644 "$srcdir"/COPYRIGHT ./usr/share/licenses/$pkgname/COPYRIGHT
  }
---- alpine/nginx.post-install
-+++ deluxe/nginx.post-install
+--- alpine/alpine/nginx.post-install
++++ deluxe/alpine/nginx.post-install
 @@ -18,8 +18,43 @@
  ----------------------------------------------------------------------
  BANNER
@@ -152,8 +152,8 @@
  fi
  
  exit 0
---- alpine/nginx.pre-install
-+++ deluxe/nginx.pre-install
+--- alpine/alpine/nginx.pre-install
++++ deluxe/alpine/nginx.pre-install
 @@ -2,23 +2,23 @@
  
  set -e
