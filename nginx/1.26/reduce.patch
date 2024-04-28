@@ -124,7 +124,7 @@
 +    if [ ! -d /etc/wavex ]; then
 +        mkdir -p /etc/wavex
 +    fi
-+    find /etc/nginx/ -type f -name "*_params" -maxdepth 1 | xargs cp -t /etc/wavex/
++    find /etc/nginx/ -maxdepth 1 -type f -name "*_params" | xargs cp -t /etc/wavex/
 +    cp /etc/nginx/fastcgi.conf /etc/wavex/
 +    cp /etc/nginx/nginx.conf /etc/wavex/wavex.conf
 +    if [ -f /etc/nginx/nginx.conf ]; then
