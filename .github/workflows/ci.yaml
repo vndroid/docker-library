@@ -4,6 +4,8 @@ on:
     branches: ['main']
     paths:
       - 'shadowsocks-libev/**'
+      - 'shadowsocks-rust/**'
+      - 'zulu-openjdk/**'
 jobs:
   docker_build:
     runs-on: ubuntu-24.04
