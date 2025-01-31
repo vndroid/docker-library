@@ -1,18 +1,12 @@
-## nginx-alpine-perl
+## nginx alpine
 
-### 特性
-
-- 基于 Alpine Linux
-- 基于 NGiNX 稳定分支
-- 基于 OpenSSL 3.x 版本
-
-### 上游
+### Upstream
 
 - [docker-nginx](https://github.com/nginxinc/docker-nginx/tree/master/stable)
 
-## 补丁
+## Patch
 
-制作补丁
+Make the patch file.
 
 ```bash
 diff -Naur alpine/ deluxe/ > reduce.patch
