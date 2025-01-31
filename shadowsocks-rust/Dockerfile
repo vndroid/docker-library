@@ -1,8 +1,8 @@
-FROM rust:1.61.0-alpine AS builder
+FROM rust:1.71-alpine3.18 AS builder
 
 LABEL maintainer="WavE Docker Maintainers <waveworkshop@outlook.com>"
 
-ENV COMMIT_ID="5916909ebd44d449d46165dcb95f4259c8c73084"
+ENV COMMIT_ID="0b62554e1de3bdc2afc3ffe98ca679680523bee0"
 
 RUN set -x \
     && apk add --no-cache build-base git \
@@ -35,10 +35,10 @@ RUN set -x \
     && rustup target add $RUST_TARGET \
     && RUSTFLAGS="-C linker=$CC" \
     && CC=$CC \
-    && cargo build --target "$RUST_TARGET" --release --features "local-tun local-redir armv8 neon stream-cipher aead-cipher-2022" \
+    && cargo build --target "$RUST_TARGET" --release --features "local-tun local-redir stream-cipher aead-cipher-2022" \
     && mv target/$RUST_TARGET/release/ss* target/release/ 
 
-FROM alpine:3.16 AS ssserver
+FROM alpine:3.18 AS ssserver
 
 COPY --from=builder /src/shadowsocks-rust/target/release/sslocal /usr/local/bin/
 COPY --from=builder /src/shadowsocks-rust/target/release/ssserver /usr/local/bin/
