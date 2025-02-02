@@ -1,4 +1,4 @@
-FROM alpine:3.17
+FROM alpine:3.19
 LABEL maintainer="WavE Docker Maintainers <waveworkshop@outlook.com>"
 
 ENV SERVER_ADDR=0.0.0.0
@@ -9,7 +9,6 @@ ENV TIMEOUT=300
 ENV DNS_ADDRS="8.8.8.8,8.8.4.4"
 ENV TZ=UTC
 ENV ARGS=
-ENV COMMIT_ID="d83ace0f0d9c05656c13d66aa4a449bf70143254"
 
 RUN set -x \
     && apk add --no-cache --virtual .build-deps \
@@ -29,7 +28,6 @@ RUN set -x \
     && cd /src \
     && git clone --recursive https://github.com/shadowsocks/shadowsocks-libev.git \
     && cd shadowsocks-libev \
-    && git reset --hard ${COMMIT_ID} \
     && ./autogen.sh \
     && ./configure --prefix=/usr/local --disable-documentation \
     && make -j$(getconf _NPROCESSORS_ONLN) \

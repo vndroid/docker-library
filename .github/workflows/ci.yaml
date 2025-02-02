@@ -15,7 +15,7 @@ jobs:
       attestations: write
       id-token: write
     env:
-      ALPINE_VER: '3.17'
+      ALPINE_VER: '3.19'
       REGISTRY: ghcr.io
     steps:
       - name: Checkout
@@ -37,3 +37,10 @@ jobs:
           context: ./shadowsocks-libev/alpine
           push: true
           tags: ${{ env.REGISTRY }}/${{ github.actor }}/shadowsocks:libev-alpine${{ env.ALPINE_VER }}
+      - name: Build and Push "shadowsocks-rust"
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          context: ./shadowsocks-rust/alpine
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ github.actor }}/shadowsocks:rust-alpine${{ env.ALPINE_VER }}

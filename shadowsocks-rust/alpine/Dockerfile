@@ -1,14 +1,14 @@
-FROM rust:1.71-alpine3.18 AS builder
+FROM rust:1.77-alpine3.19 AS builder
 
 LABEL maintainer="WavE Docker Maintainers <waveworkshop@outlook.com>"
 
-ENV COMMIT_ID="0b62554e1de3bdc2afc3ffe98ca679680523bee0"
+ENV RELEASE_VER=1.22.0
 
 RUN set -x \
     && apk add --no-cache build-base git \
     && mkdir /src \
     && cd /src \
-    && git clone https://github.com/shadowsocks/shadowsocks-rust.git \
+    && git clone -b v${RELEASE_VER} https://github.com/shadowsocks/shadowsocks-rust.git \
     && apkArch="$(apk --print-arch)" \
     && case "$apkArch" in \
         "x86") \
@@ -38,7 +38,7 @@ RUN set -x \
     && cargo build --target "$RUST_TARGET" --release --features "local-tun local-redir stream-cipher aead-cipher-2022" \
     && mv target/$RUST_TARGET/release/ss* target/release/ 
 
-FROM alpine:3.18 AS ssserver
+FROM alpine:3.19 AS ssserver
 
 COPY --from=builder /src/shadowsocks-rust/target/release/sslocal /usr/local/bin/
 COPY --from=builder /src/shadowsocks-rust/target/release/ssserver /usr/local/bin/
