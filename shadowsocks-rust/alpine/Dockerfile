@@ -1,4 +1,4 @@
-FROM rust:1.77-alpine3.19 AS builder
+FROM rust:1.81-alpine3.19 AS builder
 
 LABEL maintainer="WavE Docker Maintainers <waveworkshop@outlook.com>"
 
