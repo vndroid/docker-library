@@ -1,13 +1,11 @@
-name: ci
+name: ci-ssc
 on:
   push:
     branches: ['main']
     paths:
       - 'shadowsocks-libev/**'
-      - 'shadowsocks-rust/**'
-      - 'zulu-openjdk/**'
 jobs:
-  docker_build:
+  BuildX:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -37,10 +35,3 @@ jobs:
           context: ./shadowsocks-libev/alpine
           push: true
           tags: ${{ env.REGISTRY }}/${{ github.actor }}/shadowsocks:libev-alpine${{ env.ALPINE_VER }}
-      - name: Build and Push "shadowsocks-rust"
-        uses: docker/build-push-action@v6
-        with:
-          platforms: linux/amd64,linux/arm64
-          context: ./shadowsocks-rust/alpine
-          push: true
-          tags: ${{ env.REGISTRY }}/${{ github.actor }}/shadowsocks:rust-alpine${{ env.ALPINE_VER }}
