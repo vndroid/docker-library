@@ -1,9 +1,9 @@
-FROM alpine:3.19
+FROM alpine:3.21
 LABEL maintainer="WavE Docker Maintainers <waveworkshop@outlook.com>"
 
 ENV SERVER_ADDR=0.0.0.0
 ENV SERVER_PORT=8388
-ENV PASSWORD=
+ENV PASSWORD=""
 ENV METHOD=aes-256-gcm
 ENV TIMEOUT=300
 ENV DNS_ADDRS="8.8.8.8,8.8.4.4"

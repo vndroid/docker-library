@@ -13,7 +13,7 @@ jobs:
       attestations: write
       id-token: write
     env:
-      ALPINE_VER: '3.19'
+      ALPINE_VER: '3.21'
       REGISTRY: ghcr.io
     steps:
       - name: Checkout
