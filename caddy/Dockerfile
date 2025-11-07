@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.19.0
-FROM --platform=$BUILDPLATFORM alpine:3.21
+FROM alpine:3.21
 
 RUN apk add --no-cache \
 	ca-certificates \
