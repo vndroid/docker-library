@@ -1,4 +1,4 @@
-FROM alpine:3.19
+FROM alpine:3.21
 # https://github.com/zulu-openjdk/zulu-openjdk/blob/master/alpine/8-latest/Dockerfile
 
 ENV LANG=en_US.UTF-8
