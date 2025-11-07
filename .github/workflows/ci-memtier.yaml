@@ -1,0 +1,39 @@
+name: CI Build MemTier Benchmark
+on:
+  push:
+    branches: ['main']
+    paths:
+      - 'memtier/**'
+  workflow_dispatch:
+jobs:
+  BuildX:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+      attestations: read
+    env:
+      REGISTRY: ghcr.io
+      ALPINE_VER: '3.21'
+      PRODUCT_NAME: memtier
+      PRODUCT_VERSION: '2.2.0'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Login to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and Push
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          context: ./memtier/
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.PRODUCT_NAME }}:${{ env.PRODUCT_VERSION }}-alpine${{ env.ALPINE_VER }}
