@@ -43,10 +43,10 @@ jobs:
             exit 1
           fi
           # debug results
-          echo "AlpineLinux='${AL_VER}'"
-          echo "ProductName='${PD_NME}'"
-          echo "ProductVersion='${PD_VER}'"
-          echo "PD_DIR='${PD_DIR}'"
+          echo "ALPINE_VER='${AL_VER}'"
+          echo "PRODUCT_NAME='${PD_NME}'"
+          echo "PRODUCT_VER='${PD_VER}'"
+          echo "DIR='${PD_DIR}'"
           # set outputs
           echo "al_ver=${AL_VER}" >> $GITHUB_OUTPUT
           echo "pd_ver=${PD_VER}" >> $GITHUB_OUTPUT
@@ -69,3 +69,10 @@ jobs:
           context: ./haproxy/${{ steps.prepare.outputs.pd_dir }}/
           push: true
           tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ steps.prepare.outputs.pd_nme }}:${{ steps.prepare.outputs.pd_ver }}-alpine${{ steps.prepare.outputs.al_ver }}
+      - name: Cleanup Untagged Images
+        uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          delete-untagged: true
+          owner: ${{ github.repository_owner }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          package: ${{ steps.prepare.outputs.pd_nme }}
