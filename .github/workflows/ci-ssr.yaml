@@ -1,4 +1,4 @@
-name: ci-ssr
+name: CI Build shadowsocks-rust
 on:
   push:
     branches: ['main']
