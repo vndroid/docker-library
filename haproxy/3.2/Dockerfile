@@ -1,9 +1,3 @@
-#
-# NOTE: THIS DOCKERFILE IS GENERATED VIA "apply-templates.sh"
-#
-# PLEASE DO NOT EDIT IT DIRECTLY.
-#
-
 FROM alpine:3.21
 
 # runtime dependencies
@@ -48,6 +42,7 @@ RUN set -eux; \
 		pcre2-dev \
 		readline-dev \
 		tar \
+		binutils \
 	; \
 	\
 	wget -O haproxy.tar.gz "$HAPROXY_URL"; \
@@ -72,6 +67,7 @@ RUN set -eux; \
 	mkdir -p /usr/local/etc/haproxy; \
 	cp -R /usr/src/haproxy/examples/errorfiles /usr/local/etc/haproxy/errors; \
 	rm -rf /usr/src/haproxy; \
+	strip /usr/local/sbin/haproxy; \
 	\
 	runDeps="$( \
 		scanelf --needed --nobanner --format '%n#p' --recursive /usr/local \
