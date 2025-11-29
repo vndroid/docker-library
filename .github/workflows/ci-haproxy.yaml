@@ -15,10 +15,6 @@ jobs:
       packages: write
     env:
       REGISTRY: ghcr.io
-      BASE_IMAGE: 'alpine'
-      ALPINE_VER: '3.21'
-      PRODUCT_NAME: 'haproxy'
-      PRODUCT_VERSION: '3.0.12'
     defaults:
       run:
         working-directory: ./haproxy/
@@ -33,22 +29,25 @@ jobs:
             echo "Error: No such file or directory"
             exit 1
           fi
-          AL_VER=$(grep -E '^ALPINE_VERSION=' ARGs | head -n 1 | sed 's/^ALPINE_VERSION=\(.*\)/\1/')
+          OS_NME=$(grep -E '^OS_NAME=' ARGs | head -n 1 | sed 's/^OS_NAME=\(.*\)/\1/')
+          OS_VER=$(grep -E '^OS_VERSION=' ARGs | head -n 1 | sed 's/^OS_VERSION=\(.*\)/\1/')
           PD_NME=$(grep -E '^PRODUCT_NAME=' ARGs | head -n 1 | sed 's/^PRODUCT_NAME=\(.*\)/\1/')
           PD_VER=$(grep -E '^PRODUCT_VERSION=' ARGs | head -n 1 | sed 's/^PRODUCT_VERSION=\(.*\)/\1/')
           PD_DIR=$(echo "$PD_VER" | cut -d. -f1,2)
           # check if values are empty
-          if [ -z "$AL_VER" ] || [ -z "$PD_VER" ] || [ -z "$PD_NME" ]; then
+          if [ -z "$OS_NME" ] || [ -z "$OS_VER" ] || [ -z "$PD_VER" ] || [ -z "$PD_NME" ]; then
             echo "Error: One or more required ARG values are empty"
             exit 1
           fi
           # debug results
-          echo "ALPINE_VER='${AL_VER}'"
+          echo "OS_NAME='${OS_NME}'"
+          echo "OS_VER='${OS_VER}'"
           echo "PRODUCT_NAME='${PD_NME}'"
           echo "PRODUCT_VER='${PD_VER}'"
           echo "DIR='${PD_DIR}'"
           # set outputs
-          echo "al_ver=${AL_VER}" >> $GITHUB_OUTPUT
+          echo "os_nme=${OS_NME}" >> $GITHUB_OUTPUT
+          echo "os_ver=${OS_VER}" >> $GITHUB_OUTPUT
           echo "pd_ver=${PD_VER}" >> $GITHUB_OUTPUT
           echo "pd_nme=${PD_NME}" >> $GITHUB_OUTPUT
           echo "pd_dir=${PD_DIR}" >> $GITHUB_OUTPUT
@@ -68,7 +67,7 @@ jobs:
           platforms: linux/amd64, linux/arm64
           context: ./haproxy/${{ steps.prepare.outputs.pd_dir }}/
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ steps.prepare.outputs.pd_nme }}:${{ steps.prepare.outputs.pd_ver }}-alpine${{ steps.prepare.outputs.al_ver }}
+          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ steps.prepare.outputs.pd_nme }}:${{ steps.prepare.outputs.pd_ver }}-${{ steps.prepare.outputs.os_nme }}${{ steps.prepare.outputs.os_ver }}
       - name: Cleanup Untagged Images
         uses: dataaxiom/ghcr-cleanup-action@v1
         with:
