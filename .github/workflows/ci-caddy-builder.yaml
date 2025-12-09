@@ -1,9 +1,9 @@
-name: CI Build Caddy
+name: CI Build Caddy Builder
 on:
   push:
     branches: ['main']
     paths:
-      - 'caddy/main/**'
+      - 'caddy/builder/**'
   schedule:
     - cron: '0 0 * * 0'
   workflow_dispatch:
@@ -13,7 +13,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-      attestations: read
     env:
       REGISTRY: ghcr.io
     defaults:
@@ -55,15 +54,15 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
+      - name: Set up Docker BuildX
         uses: docker/setup-buildx-action@v3
       - name: Build and Push
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
-          file: ./caddy/main/Dockerfile
-          context: ./caddy/main/
+          file: ./caddy/builder/Dockerfile
+          context: ./caddy/builder/
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ steps.prepare.outputs.pd_name }}:${{ steps.prepare.outputs.pd_vers }}-${{ steps.prepare.outputs.os_base }}${{ steps.prepare.outputs.os_vers }}
-            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ steps.prepare.outputs.pd_name }}:${{ steps.prepare.outputs.pd_vers }}-${{ steps.prepare.outputs.os_base }}
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ steps.prepare.outputs.pd_name }}:${{ steps.prepare.outputs.pd_vers }}-builder-${{ steps.prepare.outputs.os_base }}${{ steps.prepare.outputs.os_vers }}
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ steps.prepare.outputs.pd_name }}:${{ steps.prepare.outputs.pd_vers }}-builder-${{ steps.prepare.outputs.os_base }}
