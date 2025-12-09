@@ -67,3 +67,10 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ steps.prepare.outputs.pd_name }}:${{ steps.prepare.outputs.pd_vers }}-${{ steps.prepare.outputs.os_base }}${{ steps.prepare.outputs.os_vers }}
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ steps.prepare.outputs.pd_name }}:${{ steps.prepare.outputs.pd_vers }}-${{ steps.prepare.outputs.os_base }}
+      - name: Cleanup Untagged Images
+        uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          delete-untagged: true
+          owner: ${{ github.repository_owner }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          package: ${{ needs.prepare.outputs.pd_name }}
