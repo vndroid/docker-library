@@ -18,7 +18,7 @@ jobs:
       REGISTRY: ghcr.io
     defaults:
       run:
-        working-directory: ./caddy/
+        working-directory: ./caddy/main/
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -26,26 +26,27 @@ jobs:
         id: prepare
         shell: bash
         run: |
-          if [ ! -f "ARGs" ]; then
+          if [ ! -f "Dockerfile" ]; then
             echo "Error: No such file or directory"
             exit 1
           fi
-          AL_VER=$(grep -E '^ALPINE_VERSION=' ARGs | head -n 1 | sed 's/^ALPINE_VERSION=\(.*\)/\1/')
-          PD_NAME=$(grep -E '^PRODUCT_NAME=' ARGs | head -n 1 | sed 's/^PRODUCT_NAME=\(.*\)/\1/')
-          PD_VER=$(grep -E '^PRODUCT_VERSION=' ARGs | head -n 1 | sed 's/^PRODUCT_VERSION=\(.*\)/\1/')
+          OS_BASE=$(grep -E '^FROM' Dockerfile | head -n 1 | sed 's#^FROM[[:space:]]\(.*\):\(.*\)#\1#')
+          OS_VERS=$(grep -E '^FROM' Dockerfile | head -n 1 | sed 's#^FROM[[:space:]]\(.*\):\(.*\)#\2#')
+          PD_NAME=$(grep -E '^ENV' Dockerfile | head -n 1 | sed 's#^ENV[[:space:]]\(.*\)_\(.*\)$#\1#' | tr '[:upper:]' '[:lower:]')
+          PD_VERS=$(grep -E '^ENV' Dockerfile | head -n 1 | sed 's#^ENV[[:space:]]\(.*\)_\(.*\)=v\(.*\)$#\3#')
           # check if values are empty
-          if [ -z "$AL_VER" ] || [ -z "$PD_VER" ] || [ -z "$PD_NAME" ]; then
+          if [ -z "$OS_BASE" ] || [ -z "$OS_VERS" ] || [ -z "$PD_NAME" ] || [ -z "$PD_VERS" ]; then
             echo "Error: One or more required ARG values are empty"
             exit 1
           fi
           # debug results
-          echo "AlpineLinux='${AL_VER}'"
-          echo "ProductName='${PD_NAME}'"
-          echo "ProductVersion='${PD_VER}'"
+          echo "BaseOS:  '${OS_BASE}':'${OS_VERS}'"
+          echo "Product: '${PD_NAME}':'${PD_VERS}'"
           # set outputs
-          echo "al_ver=${AL_VER}" >> $GITHUB_OUTPUT
-          echo "pd_ver=${PD_VER}" >> $GITHUB_OUTPUT
+          echo "os_base=${OS_BASE}" >> $GITHUB_OUTPUT
+          echo "os_vers=${OS_VERS}" >> $GITHUB_OUTPUT
           echo "pd_name=${PD_NAME}" >> $GITHUB_OUTPUT
+          echo "pd_vers=${PD_VERS}" >> $GITHUB_OUTPUT
       - name: Login to ghcr.io
         uses: docker/login-action@v3
         with:
@@ -60,7 +61,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
-          file: ./caddy/Dockerfile
-          context: ./caddy/
+          file: ./caddy/main/Dockerfile
+          context: ./caddy/main/
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ steps.prepare.outputs.pd_name }}:${{ steps.prepare.outputs.pd_ver }}-alpine${{ steps.prepare.outputs.al_ver }}
+          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ steps.prepare.outputs.pd_name }}:${{ steps.prepare.outputs.pd_vers }}-${{ steps.prepare.outputs.os_base }}${{ steps.prepare.outputs.os_vers }}
