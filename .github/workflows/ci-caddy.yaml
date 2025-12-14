@@ -73,4 +73,4 @@ jobs:
           delete-untagged: true
           owner: ${{ github.repository_owner }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          package: ${{ needs.prepare.outputs.pd_name }}
+          package: ${{ steps.prepare.outputs.pd_name }}
