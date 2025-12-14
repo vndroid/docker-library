@@ -14,9 +14,10 @@ jobs:
       attestations: read
     env:
       REGISTRY: ghcr.io
-      ALPINE_VER: '3.21'
+      BASE_OS: alpine
+      OS_VER: 3.21
       PRODUCT_NAME: memtier
-      PRODUCT_VERSION: '2.2.0'
+      PRODUCT_VERSION: 2.2.0
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -36,4 +37,11 @@ jobs:
           platforms: linux/amd64,linux/arm64
           context: ./memtier/
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.PRODUCT_NAME }}:${{ env.PRODUCT_VERSION }}-alpine${{ env.ALPINE_VER }}
+          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.PRODUCT_NAME }}:${{ env.PRODUCT_VERSION }}-${{ env.BASE_OS }}${{ env.OS_VER }}
+      - name: Cleanup Untagged Images
+        uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          delete-untagged: true
+          owner: ${{ github.repository_owner }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          package: ${{ env.PRODUCT_NAME }}
